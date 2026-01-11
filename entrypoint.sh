@@ -3,11 +3,13 @@ set -e
 
 SITE_NAME=${SITE_NAME:-crm.local}
 
-echo "Waiting for DB..."
-sleep 10
+echo "Waiting for database..."
+sleep 15
+
+cd /home/frappe/frappe-bench
 
 if [ ! -d "sites/$SITE_NAME" ]; then
-  echo "Creating new site: $SITE_NAME"
+  echo "Creating site $SITE_NAME"
 
   bench new-site $SITE_NAME \
     --admin-password $ADMIN_PASSWORD \
