@@ -24,6 +24,7 @@ if [ ! -d "sites/$SITE_NAME" ]; then
     --admin-password "$ADMIN_PASSWORD" \
     --db-host "$DB_HOST" \
     --db-name "$DB_NAME" \
+    --db-user "$DB_USER" \
     --db-password "$DB_PASSWORD" \
     --db-root-username "$DB_USER" \
     --db-root-password "$DB_PASSWORD" \
