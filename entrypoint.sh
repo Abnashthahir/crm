@@ -2,10 +2,9 @@
 set -e
 
 SITE_NAME=${SITE_NAME:-crm.local}
+SITES_PATH="/home/frappe/frappe-bench/sites"
 
-echo "Waiting for database..."
-sleep 15
-
+echo "Starting Frappe container..."
 cd /home/frappe/frappe-bench
 
 echo "Writing Redis configuration..."
@@ -17,8 +16,8 @@ cat > sites/common_site_config.json <<EOF
 }
 EOF
 
-if [ ! -d "sites/$SITE_NAME" ]; then
-  echo "Creating site $SITE_NAME"
+if [ ! -d "$SITES_PATH/$SITE_NAME" ]; then
+  echo "First-time setup: creating site $SITE_NAME"
 
   bench new-site "$SITE_NAME" \
     --admin-password "$ADMIN_PASSWORD" \
@@ -26,15 +25,15 @@ if [ ! -d "sites/$SITE_NAME" ]; then
     --db-name "$DB_NAME" \
     --db-user "$DB_USER" \
     --db-password "$DB_PASSWORD" \
-    --db-root-username "$DB_USER" \
-    --db-root-password "$DB_PASSWORD" \
-    --mariadb-user-host-login-scope='%' \
-    --force
+    --no-setup-db
+
+  echo "Running migrations"
+  bench --site "$SITE_NAME" migrate
 
   echo "Installing CRM app"
   bench --site "$SITE_NAME" install-app crm
 else
-  echo "Site $SITE_NAME already exists, skipping creation"
+  echo "Site already exists in volume. Skipping creation."
 fi
 
 echo "Starting Frappe..."
