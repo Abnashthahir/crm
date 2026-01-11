@@ -2,7 +2,7 @@ FROM frappe/bench:latest
 
 WORKDIR /home/frappe
 
-# Initialize bench WITHOUT redis detection
+# Init bench (no redis, no assets)
 RUN bench init frappe-bench \
     --skip-assets \
     --skip-redis-config-generation \
@@ -13,10 +13,9 @@ WORKDIR /home/frappe/frappe-bench
 # Get CRM app
 RUN bench get-app crm https://github.com/frappe/crm.git
 
-# Copy entrypoint
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Copy entrypoint with correct ownership
+COPY --chown=frappe:frappe entrypoint.sh /home/frappe/entrypoint.sh
 
 EXPOSE 8000
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/home/frappe/entrypoint.sh"]
