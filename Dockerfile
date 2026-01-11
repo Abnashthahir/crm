@@ -2,10 +2,11 @@ FROM frappe/bench:latest
 
 WORKDIR /home/frappe/frappe-bench
 
-# Get CRM app only (safe at build time)
 RUN bench get-app crm https://github.com/frappe/crm.git
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 8000
 
-# Start script
-CMD ["bash", "-c", "bench start"]
+ENTRYPOINT ["/entrypoint.sh"]
