@@ -1,31 +1,27 @@
-FROM frappe/bench:latest
+# Dockerfile for Frappe CRM Backend on Railway
+FROM frappe/frappe-worker:v15
 
 # Set environment variables
-ENV FRAPPE_ENV=production
-ENV SITE_NAME=crm.local
-ENV DB_HOST=${DB_HOST}
-ENV DB_PORT=3306
-ENV DB_NAME=${DB_NAME}
-ENV DB_PASSWORD=${DB_PASSWORD}
-ENV REDIS_CACHE=${REDIS_CACHE}
-ENV REDIS_QUEUE=${REDIS_QUEUE}
-ENV REDIS_SOCKETIO=${REDIS_SOCKETIO}
+ENV FRAPPE_USER=frappe \
+    FRAPPE_HOME=/home/frappe \
+    FRAPPE_SITE_NAME=crm.localhost \
+    MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
+    DB_HOST=${DB_HOST} \
+    DB_PORT=${DB_PORT} \
+    REDIS_HOST=${REDIS_HOST} \
+    REDIS_PORT=${REDIS_PORT}
 
-WORKDIR /home/frappe/frappe-bench
+# Install CRM app
+RUN bench get-app crm https://github.com/frappe/crm --branch develop
 
-# Get CRM app
-RUN bench get-app crm https://github.com/frappe/crm.git
-
-# Create site (no DB init yet)
-RUN bench new-site $SITE_NAME \
+# Create a new site and install CRM app
+RUN bench new-site $FRAPPE_SITE_NAME \
+    --mariadb-root-password $MYSQL_ROOT_PASSWORD \
     --admin-password admin \
-    --mariadb-root-password admin \
-    --no-mariadb-socket
+    --install-app crm
 
-# Install CRM
-RUN bench --site $SITE_NAME install-app crm
+# Expose port 8000 (default Frappe port)
+EXPOSE 8000
 
-# Expose ports
-EXPOSE 8000 9000
-
+# Start the Frappe server
 CMD ["bench", "start"]
