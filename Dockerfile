@@ -2,8 +2,11 @@ FROM frappe/bench:latest
 
 WORKDIR /home/frappe
 
-# Initialize bench
-RUN bench init frappe-bench --skip-assets --python python3
+# Initialize bench WITHOUT redis detection
+RUN bench init frappe-bench \
+    --skip-assets \
+    --skip-redis-config-generation \
+    --python python3
 
 WORKDIR /home/frappe/frappe-bench
 
